@@ -38,10 +38,6 @@
     "plugins": [
       "expo-router",
       "expo-font",
-<<<<<<< HEAD
-      "expo-web-browser",
-=======
->>>>>>> c5c32d5 (feat: v2.0 — full Expo migration, app guide, and README)
       [
         "expo-image-picker",
         {
