@@ -30,10 +30,10 @@ const loveLetters: LoveLetter[] = [
     title: 'The Day We Became Official',
     month: 'March 18, 2026',
     date: '2026-03-18',
-    preview: 'Out of all the random conversations, late replies, and laughs, somehow it turned into this — us.',
+    preview: 'Out of all the random conversations, late replies, and laughs, somehow it turned into this. Us.',
     content: `To My Princess,
 
-March 18 will always be one of my favorite days because that was the day you officially became mine, and I became yours. Out of all the random conversations, teasing, late replies, laughs, and moments that slowly brought us closer since February 18, somehow it turned into this — us.
+March 18 will always be one of my favorite days because that was the day you officially became mine, and I became yours. Out of all the random conversations, teasing, late replies, laughs, and moments that slowly brought us closer since February 18, somehow it turned into this. Us.
 
 And honestly? I wouldn't trade it for anything.
 
