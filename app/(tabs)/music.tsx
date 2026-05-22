@@ -51,6 +51,10 @@ export default function MusicScreen() {
   const handleNextRef = useRef<() => void>(() => {});
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
 
+  // Stable status callback — always calls through ref so it never captures stale state
+  const onStatusRef = useRef<(s: AVPlaybackStatus) => void>(() => {});
+  const stableOnStatus = useCallback((s: AVPlaybackStatus) => { onStatusRef.current(s); }, []);
+
   const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
 
   const startSpin = useCallback(() => {
@@ -108,7 +112,8 @@ export default function MusicScreen() {
     });
   }, [isShuffled, repeatMode]);
 
-  const onStatus = useCallback((status: AVPlaybackStatus) => {
+  // Update the ref every render so stableOnStatus always uses fresh state
+  onStatusRef.current = (status: AVPlaybackStatus) => {
     if (!status.isLoaded) return;
     setCurrentTime((status.positionMillis ?? 0) / 1000);
     setDuration((status.durationMillis ?? 0) / 1000);
@@ -117,14 +122,13 @@ export default function MusicScreen() {
       if (repeatMode === 2) soundRef.current?.replayAsync();
       else handleNext();
     }
-  }, [repeatMode, handleNext]);
+  };
 
   const loadAndPlay = async (index: number) => {
     try {
       if (soundRef.current) { await soundRef.current.unloadAsync(); soundRef.current = null; }
-      const { sound } = await Audio.Sound.createAsync(songs[index].audioUrl, { shouldPlay: true }, onStatus);
+      const { sound } = await Audio.Sound.createAsync(songs[index].audioUrl, { shouldPlay: true }, stableOnStatus);
       soundRef.current = sound;
-      setCurrentSongIndex(index);
       setIsPlaying(true);
     } catch {
       Alert.alert('Playback Error', `Unable to play: ${songs[index].title}`);
@@ -180,6 +184,20 @@ export default function MusicScreen() {
 
   const seekTo = async (position: number) => {
     if (soundRef.current) await soundRef.current.setPositionAsync(position * 1000);
+  };
+
+  // Tap a song from the list — restart if same song, change index otherwise (useEffect handles loading)
+  const playSong = async (i: number) => {
+    if (i === currentSongIndex) {
+      if (soundRef.current) {
+        await soundRef.current.setPositionAsync(0);
+        await soundRef.current.playAsync();
+      } else {
+        await loadAndPlay(i);
+      }
+      return;
+    }
+    setCurrentSongIndex(i);
   };
 
   const toggleFav = async (id: number) => {
@@ -299,7 +317,7 @@ export default function MusicScreen() {
         <View style={styles.songList}>
           {songs.map((song, i) => (
             <View key={song.id} style={[styles.songRow, { backgroundColor: colors.surface, borderColor: i === currentSongIndex ? colors.primary : colors.border }]}>
-              <TouchableOpacity onPress={() => loadAndPlay(i)} activeOpacity={0.7} style={styles.songRowPlay}>
+              <TouchableOpacity onPress={() => playSong(i)} activeOpacity={0.7} style={styles.songRowPlay}>
                 <LinearGradient colors={i === currentSongIndex ? ['#E91E8C', '#9C27B0'] : ['#2A1040', '#1A0A2E']} style={styles.songRowThumb} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
                   <Heart size={16} color="#fff" fill={i === currentSongIndex ? '#fff' : 'none'} />
                 </LinearGradient>
