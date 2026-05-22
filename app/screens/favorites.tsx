@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
-import { Heart, Star, Sparkles, Flower, Music, Camera, Palette, ArrowLeft } from 'lucide-react-native';
+import { Heart, Star, Sparkles, Flower, Music, Camera, Palette, ChevronLeft } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useRouter } from 'expo-router';
 
@@ -121,7 +121,7 @@ export default function FavoritesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color={colors.text} />
+          <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Heart size={30} color={colors.primary} />
@@ -129,7 +129,7 @@ export default function FavoritesScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
         {/* Categories */}
         <View style={styles.categoriesContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
@@ -215,6 +215,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+    paddingBottom: 120,
   },
   categoriesContainer: {
     marginBottom: 30,
@@ -229,7 +230,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1,
     marginRight: 10,
   },
   categoryText: {
@@ -245,8 +245,7 @@ const styles = StyleSheet.create({
   },
   favoriteCard: {
     width: (width - 55) / 2,
-    borderWidth: 1,
-    borderRadius: 15,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   cardHeader: {

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Brain, CircleCheck as CheckCircle, Circle as XCircle, Award } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { Brain, CircleCheck as CheckCircle, Circle as XCircle, Award, Star } from 'lucide-react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const quizQuestions = [
   {
@@ -39,8 +40,15 @@ export default function QuizScreen() {
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [answers, setAnswers] = useState([]);
+  const [awardedStars, setAwardedStars] = useState(0);
+  const [claimedStars, setClaimedStars] = useState(false);
+  const [starBalance, setStarBalance] = useState(0);
 
-  const handleAnswer = (selectedIndex) => {
+  useFocusEffect(useCallback(() => {
+    AsyncStorage.getItem('stars').then(val => setStarBalance(Number(val || '0'))).catch(() => {});
+  }, []));
+
+  const handleAnswer = async (selectedIndex: number) => {
     setSelectedAnswer(selectedIndex);
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = selectedIndex;
@@ -50,11 +58,27 @@ export default function QuizScreen() {
       setScore(score + 1);
     }
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (currentQuestion < quizQuestions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
         setSelectedAnswer(null);
       } else {
+        // Quiz finished - compute awarded stars and save
+        const awarded = Math.max(1, Math.round(( (score + (selectedIndex === quizQuestions[currentQuestion].correct ? 1 : 0)) / quizQuestions.length) * 5));
+        setAwardedStars(awarded);
+        try {
+          const prevStr = await AsyncStorage.getItem('stars');
+          const newTotal = Number(prevStr || '0') + awarded;
+          await AsyncStorage.setItem('stars', String(newTotal));
+          setStarBalance(newTotal);
+          setClaimedStars(true);
+          Alert.alert('You earned stars! ✨', `You earned ${awarded} star${awarded > 1 ? 's' : ''}. You now have ${newTotal} stars.`, [
+            { text: 'Go to Shop', onPress: () => router.push('/screens/gifts') },
+            { text: 'Nice' }
+          ]);
+        } catch (e) {
+          console.error('Failed to award stars', e);
+        }
         setShowResult(true);
       }
     }, 1000);
@@ -84,7 +108,7 @@ export default function QuizScreen() {
   if (showResult) {
     return (
       <LinearGradient colors={['#000000', '#1a0033', '#000000']} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} bounces={false} overScrollMode="never">
           <View style={styles.resultContainer}>
             <Award size={80} color="#A020F0" />
             <Text style={styles.resultTitle}>Quiz Complete!</Text>
@@ -108,7 +132,7 @@ export default function QuizScreen() {
 
   return (
     <LinearGradient colors={['#000000', '#1a0033', '#000000']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} bounces={false} overScrollMode="never">
         <View style={styles.header}>
           <Brain size={50} color="#A020F0" />
           <Text style={styles.title}>Princess Quiz</Text>
@@ -179,6 +203,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingTop: 60,
+    paddingBottom: 60,
   },
   header: {
     alignItems: 'center',
@@ -219,10 +244,8 @@ const styles = StyleSheet.create({
   },
   questionCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderColor: 'rgba(160, 32, 240, 0.3)',
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 25,
+    borderRadius: 12,
+    padding: 20,
     marginBottom: 30,
   },
   questionText: {
@@ -237,10 +260,8 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderColor: 'rgba(160, 32, 240, 0.2)',
-    borderWidth: 1,
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     marginBottom: 15,
     flexDirection: 'row',
     alignItems: 'center',

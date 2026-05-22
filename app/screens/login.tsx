@@ -1,154 +1,137 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Animated, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Heart, Lock, User } from 'lucide-react-native';
+import { Heart, Lock, User, Eye, EyeOff } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  const shake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+    ]).start();
+  };
 
   const handleLogin = () => {
     if (username.toLowerCase() === 'princess' && password === 'i love you') {
-      // Simple success - no complex animations
-      setTimeout(() => {
-        router.replace('/(tabs)');
-      }, 500);
+      setLoading(true);
+      setTimeout(() => router.replace('/(tabs)'), 600);
     } else {
-      Alert.alert(
-        "Oops! 💜", 
-        "That's not quite right, Princess. Try again! 😊",
-        [{ text: "OK", style: "default" }]
-      );
+      shake();
+      Alert.alert('Try again', 'Those credentials are not quite right.');
     }
   };
 
   return (
-    <LinearGradient colors={['#000000', '#1a0033', '#000000']} style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Heart size={80} color="#A020F0" fill="#A020F0" />
-          <Text style={styles.title}>To My Princess</Text>
-          <Text style={styles.subtitle}>A special place made just for you 💜</Text>
-        </View>
+    <LinearGradient colors={['#09060F', '#160B25', '#09060F']} style={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav}>
+        <View style={styles.content}>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <User size={20} color="#A020F0" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="words"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Lock size={20} color="#A020F0" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <LinearGradient
-              colors={['#A020F0', '#FF69B4']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>Enter ✨</Text>
+          {/* Logo */}
+          <View style={styles.logoWrap}>
+            <LinearGradient colors={['#E91E8C', '#9C27B0']} style={styles.logoGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+              <Heart size={44} color="#fff" fill="#fff" />
             </LinearGradient>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <View style={styles.hint}>
-          <Text style={styles.hintText}>Hint: You know who you are to me 💫</Text>
+          {/* Title */}
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>A private sanctuary made just for you</Text>
+
+          {/* Form */}
+          <Animated.View style={[styles.form, { transform: [{ translateX: shakeAnim }] }]}>
+            <View style={styles.inputWrap}>
+              <User size={18} color="rgba(233,30,140,0.7)" />
+              <TextInput
+                style={styles.input}
+                placeholder="Username"
+                placeholderTextColor="rgba(255,255,255,0.3)"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                returnKeyType="next"
+              />
+            </View>
+
+            <View style={styles.inputWrap}>
+              <Lock size={18} color="rgba(233,30,140,0.7)" />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="rgba(255,255,255,0.3)"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(v => !v)} style={styles.eyeBtn}>
+                {showPassword
+                  ? <EyeOff size={18} color="rgba(255,255,255,0.4)" />
+                  : <Eye size={18} color="rgba(255,255,255,0.4)" />
+                }
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity onPress={handleLogin} activeOpacity={0.85} disabled={loading} style={styles.btnWrap}>
+              <LinearGradient colors={['#E91E8C', '#9C27B0']} style={styles.btn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Text style={styles.btnText}>{loading ? 'Opening...' : 'Enter'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Text style={styles.hint}>Hint: you know who you are to me</Text>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 30,
-  },
-  header: {
+  container: { flex: 1 },
+  kav: { flex: 1 },
+  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 32 },
+  logoWrap: { alignSelf: 'center', marginBottom: 32 },
+  logoGrad: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     alignItems: 'center',
-    marginBottom: 50,
+    justifyContent: 'center',
+    shadowColor: '#E91E8C',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 24,
+    elevation: 16,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginTop: 20,
-    fontFamily: 'serif',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 10,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  form: {
-    marginBottom: 30,
-  },
-  inputContainer: {
+  title: { fontSize: 34, fontWeight: '800', color: '#FFFFFF', textAlign: 'center', marginBottom: 8, letterSpacing: 0.3 },
+  subtitle: { fontSize: 15, color: 'rgba(255,255,255,0.45)', textAlign: 'center', marginBottom: 48, fontStyle: 'italic' },
+  form: { gap: 16, marginBottom: 32 },
+  inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderColor: 'rgba(160, 32, 240, 0.3)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(233,30,140,0.25)',
     borderWidth: 1,
-    borderRadius: 15,
-    marginBottom: 20,
-    paddingHorizontal: 15,
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    height: 56,
+    gap: 12,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: '#FFFFFF',
-    fontSize: 16,
-  },
-  loginButton: {
-    marginTop: 20,
-    borderRadius: 15,
-    overflow: 'hidden',
-  },
-  buttonGradient: {
-    paddingVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  hint: {
-    alignItems: 'center',
-  },
-  hintText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 14,
-    fontStyle: 'italic',
-    textAlign: 'center',
-  },
+  input: { flex: 1, color: '#FFFFFF', fontSize: 16 },
+  eyeBtn: { padding: 4 },
+  btnWrap: { borderRadius: 16, overflow: 'hidden', marginTop: 8 },
+  btn: { height: 56, alignItems: 'center', justifyContent: 'center' },
+  btnText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700', letterSpacing: 0.5 },
+  hint: { color: 'rgba(255,255,255,0.3)', fontSize: 13, textAlign: 'center', fontStyle: 'italic' },
 });

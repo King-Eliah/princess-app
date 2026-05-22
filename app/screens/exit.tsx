@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert } from 'react-native';
-import { Heart, Star, Sparkles, ArrowLeft, Home, LogOut } from 'lucide-react-native';
+import { Heart, Star, Sparkles, ChevronLeft, Home, LogOut } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useRouter } from 'expo-router';
 
@@ -23,11 +23,11 @@ export default function ExitScreen() {
   }, []);
 
   const messages = [
-    "Whenever you feel down, come back here. 💜",
-    "You're never alone, my love. 💕",
-    "I'm always here for you. 💜",
-    "You make my world complete. ✨",
-    "Together forever. 💜",
+    "Whenever you feel down, come back here.",
+    "You're never alone, my love.",
+    "I'm always here for you.",
+    "You make my world complete.",
+    "Together forever.",
   ];
 
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
@@ -66,7 +66,7 @@ export default function ExitScreen() {
           <View style={[styles.heartContainer, { backgroundColor: colors.primary }]}>
             <Heart size={80} color="#FFFFFF" fill="#FFFFFF" />
           </View>
-          <Text style={[styles.title, { color: colors.text }]}>Don't Go 💜</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Don't Go</Text>
         </View>
 
         {/* Message */}
@@ -107,7 +107,7 @@ export default function ExitScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={() => router.push('/(tabs)')}
+            onPress={() => router.replace('/(tabs)')}
           >
             <Home size={24} color="#FFFFFF" />
             <Text style={styles.buttonText}>Stay Here</Text>
@@ -116,19 +116,8 @@ export default function ExitScreen() {
           <TouchableOpacity
             style={[styles.button, styles.secondaryButton, { borderColor: colors.border }]}
             onPress={() => {
-              Alert.alert(
-                'See you soon, Princess! 👑',
-                'Logging you out...',
-                [
-                  {
-                    text: 'OK',
-                    style: 'default',
-                    onPress: () => {
-                      router.replace('/screens/login');
-                    },
-                  },
-                ]
-              );
+              Alert.alert('See you soon!', 'Come back soon, Princess.');
+              router.replace('/screens/login');
             }}
           >
             <LogOut size={24} color={colors.text} />
@@ -139,7 +128,7 @@ export default function ExitScreen() {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-            I'll always be here waiting for you 💜
+            I'll always be here waiting for you
           </Text>
         </View>
       </View>
@@ -179,9 +168,8 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
   },
   messageContainer: {
-    borderWidth: 1,
-    borderRadius: 20,
-    padding: 25,
+    borderRadius: 12,
+    padding: 20,
     marginBottom: 40,
     alignItems: 'center',
   },
@@ -221,13 +209,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-    borderRadius: 15,
+    padding: 16,
+    borderRadius: 12,
     gap: 10,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
   },
   buttonText: {
     fontSize: 18,
