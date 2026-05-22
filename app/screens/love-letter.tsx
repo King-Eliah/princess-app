@@ -27,66 +27,107 @@ function isUnlocked(dateStr: string) {
 const loveLetters: LoveLetter[] = [
   {
     id: 'official',
-    title: 'The Day We Became Us',
+    title: 'The Day We Became Official',
     month: 'March 18, 2026',
     date: '2026-03-18',
-    preview: 'The day I became yours, officially and completely.',
-    content: `My Dearest Christabel,
+    preview: 'Out of all the random conversations, late replies, and laughs, somehow it turned into this — us.',
+    content: `To My Princess,
 
-March 18th. I want you to always remember what that date means, because I will never forget it for as long as I live.
+March 18 will always be one of my favorite days because that was the day you officially became mine, and I became yours. Out of all the random conversations, teasing, late replies, laughs, and moments that slowly brought us closer since February 18, somehow it turned into this — us.
 
-That was the day I stopped being just the person who admires you and became yours. Officially, completely, wholeheartedly. There is a version of me before March 18th and a version of me after, and I am so glad I get to be the one who came after.
+And honestly? I wouldn't trade it for anything.
 
-I knew that day that something had shifted in the universe. It was not just butterflies or excitement. It was a deep, quiet certainty settling in my chest, telling me: this is right. She is the one.
+You came into my life with your boss attitude, your beautiful face, your peak fashion sense, and somehow managed to make me completely obsessed with you. You're dramatic sometimes, stubborn too, but that's part of what makes you you, and I love every bit of it.
 
-You walked into my life and rearranged everything. The way I see the world, the way I hear music, the way I think about the future. You changed all of it, and I am grateful every single day.
+I still smile thinking about how natural everything felt with you. Like even before we officially dated, it already felt like you were my person. My Princess.
 
-Since that day, you have been my peace in chaos, my laughter on hard days, and my reason to be better. Being your King is the greatest title I will ever hold.
+I love the little things about you:
+the way you love spicy food,
+your addiction to sleep,
+how excited you get over food and boba spots,
+your love for black roses and money 🤭,
+and the way you somehow look good doing absolutely nothing.
 
-Happy anniversary, my love. Every month that passes, I love you more than the last.
+And our first kiss on July 18? Yeah… that memory is permanently stuck in my head.
 
-Yours from March 18th and every day after,
-Eliah`,
+Thank you for choosing me. Thank you for loving me the way you do. I promise I'll keep making memories with you, annoying you, spoiling you, and reminding you every single day how beautiful and special you are to me.
+
+March 18 wasn't just the day we started dating.
+It was the day my favorite person became my girlfriend.
+
+Forever your boy,
+Eliah ❤️‍🔥`,
   },
   {
     id: 'month1',
     title: 'One Month',
     month: 'April 18, 2026',
     date: '2026-04-18',
-    preview: 'Thirty days of waking up knowing you are mine.',
-    content: `My Princess,
+    preview: 'One month of laughs, random conversations, and all the little things that became part of my daily life.',
+    content: `To My Princess,
 
-One month. Thirty days of waking up knowing you are mine. Thirty days of your voice, your laugh, your warmth finding me even through a screen.
+One month with you already, and somehow you still manage to make my heart race like it's day one.
 
-One month ago I was holding my breath, hoping you felt what I felt. Now I get to breathe easy because I know you do.
+It's crazy how much can happen in just a month. One month of laughs, random conversations, flirting, memories, overthinking together, soft moments, and all the little things that slowly became part of my daily life. You became part of my routine so naturally that I genuinely can't imagine my days without you now.
 
-In one month you have already become the first thing I think about in the morning and the last thing on my mind at night. You have become the person I want to share every small moment with. The funny things, the quiet things, the things that do not even matter but feel like they do because I want you in them.
+You make life feel lighter.
 
-I did not know one month could change a person this much. I did not know love could feel this comfortable this fast, this easy, this right.
+Even when you're being bossy or dramatic 🤭, I still find myself smiling because that's my girl. My beautiful Princess.
 
-Here is to every month that follows. They all belong to you.
+I love how we can go from sweet romantic moments to laughing at the dumbest things in seconds. I love how comfortable you make me feel. I love how every conversation with you somehow becomes my favorite part of the day.
 
-With love that is already growing bigger than I can contain,
-Eliah`,
+And can we talk about how unfairly beautiful you are? Like seriously. You walk around looking perfect while I'm just trying to survive.
+
+Thank you for one amazing month.
+One month of love.
+One month of memories.
+One month of being yours.
+
+I know this is only the beginning for us, and honestly, that makes me even happier because it means I still have so much more time to love you.
+
+Happy one month, Princess ❤️‍🔥
+
+Forever yours,
+Your Baby`,
   },
   {
     id: 'month2',
     title: 'Two Months',
     month: 'May 18, 2026',
     date: '2026-05-18',
-    preview: 'Everything I used to settle for was just a placeholder until you arrived.',
-    content: `My beautiful Christabel,
+    preview: 'In just two months, you\'ve become one of the most important people in my life.',
+    content: `To My Princess,
 
-Two months of you. Two months of realizing that everything I used to settle for was just a placeholder until you arrived.
+Two months with you, and somehow I still get excited every single time I see your name pop up on my phone.
 
-You have this way of making ordinary days feel like they matter. A simple conversation with you feels like the best part of any day. Your voice when you are tired, your laugh when something catches you off guard, the way you get excited about things you love,I collect all of it like it is precious, because it is.
+What we have means so much to me. In just two months, you've become one of the most important people in my life. You're not just my girlfriend — you're my safe place, my happiness, my favorite distraction, and the person I want to tell everything to.
 
-Two months in and I am not slowing down. Every day with you I find a new reason, a new detail, a new thing that makes me grateful you exist and that somehow I get to be the one beside you.
+I love us.
 
-I love you more than last month. That will keep being true.
+I love our memories.
+I love our jokes.
+I love the little hidden meanings only we understand.
+I love the way we annoy each other and still end up being soft five minutes later.
 
-Forever yours,
-Eliah`,
+You genuinely make life better.
+
+And even after two months, I still catch myself thinking:
+"Damn… that's MY girlfriend."
+
+My Princess with the black outfits, perfect taste, beautiful smile, love for pizza and spicy food, and that confident energy that makes everyone notice her the moment she walks in.
+
+You're special in a way I can't fully explain.
+
+Thank you for loving me.
+Thank you for staying.
+Thank you for making these past two months unforgettable.
+
+No matter how much time passes, March 18 will always be the start of something beautiful for me.
+
+Happy two months, Princess ❤️‍🔥
+
+With all my love,
+King`,
   },
   {
     id: 'month3',
