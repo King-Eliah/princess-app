@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Heart, Star, Sparkles, Flower, Music, Camera, Palette, ArrowLeft } from 'lucide-react-native';
+import { Heart, Star, Sparkles, Flower, Music, Camera, Palette, ChevronLeft } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useRouter } from 'expo-router';
 
@@ -39,13 +39,13 @@ export default function CreditsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
         {/* Back Button */}
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <ArrowLeft size={24} color={colors.text} />
+          <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
 
         {/* Header */}
@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingTop: 60,
+    paddingBottom: 100,
   },
   backButton: {
     position: 'absolute',
@@ -187,9 +188,8 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: '48%',
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 15,
+    borderRadius: 12,
+    padding: 12,
     alignItems: 'center',
     minHeight: 120,
     justifyContent: 'center',
@@ -214,9 +214,8 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   messageCard: {
-    borderWidth: 1,
-    borderRadius: 20,
-    padding: 25,
+    borderRadius: 12,
+    padding: 20,
     marginBottom: 40,
   },
   messageTitle: {

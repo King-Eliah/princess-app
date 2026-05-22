@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { Palette, RotateCcw, Save, Heart } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -20,7 +20,7 @@ export default function DrawScreen() {
 
   const saveDrawing = () => {
     // In a real app, you would save the drawing
-    alert('Drawing saved! 💜');
+    Alert.alert('Saved! 💜', 'Drawing saved!');
   };
 
   return (
@@ -105,12 +105,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   selectedColor: {
     borderColor: '#FFFFFF',
-    borderWidth: 3,
+    borderWidth: 2,
   },
   canvasContainer: {
     flex: 1,
@@ -119,8 +117,7 @@ const styles = StyleSheet.create({
   canvas: {
     width: canvasWidth,
     height: canvasHeight,
-    borderRadius: 15,
-    borderWidth: 2,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,481 +1,397 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated, Alert } from 'react-native';
-import { ArrowLeft, Heart, Utensils, Sparkles, Crown, Star, Zap, ChevronRight } from 'lucide-react-native';
+import React, { useState, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing, ScrollView } from 'react-native';
+import { ChevronLeft, RotateCcw } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/hooks/useTheme';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width, height } = Dimensions.get('window');
-
-const regularFoods = [
-  { id: 1, name: 'Waakye', emoji: '🍚' },
-  { id: 2, name: 'Fried Rice', emoji: '🍚' },
-  { id: 3, name: 'Jollof Rice', emoji: '🍚' },
-  { id: 4, name: 'Rice & Stew', emoji: '🍚' },
-  { id: 5, name: 'Yam Chips', emoji: '🍟' },
+const FOODS = [
+  { label: 'Sushi', emoji: '🍣' },
+  { label: 'Pizza', emoji: '🍕' },
+  { label: 'Burgers', emoji: '🍔' },
+  { label: 'Tacos', emoji: '🌮' },
+  { label: 'Ramen', emoji: '🍜' },
+  { label: 'BBQ', emoji: '🍖' },
+  { label: 'Pasta', emoji: '🍝' },
+  { label: 'Seafood', emoji: '🦞' },
+  { label: 'Fried Rice', emoji: '🍛' },
+  { label: 'Salad', emoji: '🥗' },
+  { label: 'Shawarma', emoji: '🌯' },
+  { label: 'Waffles', emoji: '🧇' },
 ];
 
-const bougieFoods = [
-  { id: 1, name: 'Shawarma', emoji: '🌯' },
-  { id: 2, name: 'Loaded Fries', emoji: '🍟' },
-  { id: 3, name: 'Pizza', emoji: '🍕' },
-  { id: 4, name: 'Boba', emoji: '🧋' },
-  { id: 5, name: 'Tacos', emoji: '🌮' },
-  { id: 6, name: 'KFC', emoji: '🍗' },
-];
+const ITEM_H = 80;
+const VISIBLE = 3;
+const REEL_H = ITEM_H * VISIBLE;
 
-// Instructions for how to get the food
-const instructions = [
-  "Order it for delivery right now!",
-  "Go to the kitchen and make it!",
-  "Head to the nearest restaurant!",
-  "Call a friend to bring it over!",
-  "Walk to the store and buy ingredients!",
-  "Look up a recipe and start cooking!",
-  "Check your fridge and make it happen!",
-  "Order it online for pickup!",
-  "Ask someone to cook it for you!",
-  "Go to your favorite spot that serves it!",
-  "Search for the best place nearby!",
-];
+// Build a long repeated list so spin animation scrolls far
+function buildReelItems() {
+  const out: typeof FOODS = [];
+  for (let i = 0; i < 8; i++) out.push(...FOODS);
+  return out;
+}
+const REEL_ITEMS = buildReelItems();
 
-export default function FoodRouletteScreen() {
-  const { colors } = useTheme();
-  const router = useRouter();
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<{ id: number; name: string; emoji: string; } | null>(null);
-  const [selectedInstruction, setSelectedInstruction] = useState<string | null>(null);
-  const [spinCount, setSpinCount] = useState(0);
-  const [isBougieMode, setIsBougieMode] = useState(false);
-  
-  const reelAnim = useRef(new Animated.Value(0)).current;
-  const leverAnim = useRef(new Animated.Value(0)).current;
-  const arrowAnim = useRef(new Animated.Value(0)).current;
-
-  const currentFoods = isBougieMode ? bougieFoods : regularFoods;
-
-  const spinSlotMachine = () => {
-    if (isSpinning) return;
-
-    setIsSpinning(true);
-    setSelectedFood(null);
-    setSelectedInstruction(null);
-    setSpinCount(prev => prev + 1);
-
-    // Pull the lever animation
-    Animated.sequence([
-      Animated.timing(leverAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(leverAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // Arrow pulse animation during spin
-    const arrowPulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(arrowAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(arrowAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    arrowPulse.start();
-
-    // Reset reel position first
-    reelAnim.setValue(0);
-
-    // Random final position
-    const finalPosition = Math.floor(Math.random() * currentFoods.length);
-    const totalSpins = currentFoods.length * 5 + finalPosition; // 5 full cycles + final position
-
-    // Animate the single reel with more realistic slot machine movement
-    Animated.timing(reelAnim, {
-      toValue: totalSpins,
-      duration: 3000,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsSpinning(false);
-      arrowPulse.stop();
-      arrowAnim.setValue(0);
-      
-      // Determine the result
-      const selected = currentFoods[finalPosition];
-      const randomInstruction = instructions[Math.floor(Math.random() * instructions.length)];
-      
-      setSelectedFood(selected);
-      setSelectedInstruction(randomInstruction);
-    });
-  };
-
-
+function Reel({ translateY }: { translateY: Animated.AnimatedInterpolation<number> }) {
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Utensils size={30} color={colors.primary} />
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Food Slot Machine</Text>
-        </View>
-      </View>
-
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        Pull the lever and see what you'll eat! 🎰
-      </Text>
-
-      {/* Bougie Mode Toggle */}
-      <TouchableOpacity
-        style={[
-          styles.bougieToggle,
-          { backgroundColor: isBougieMode ? colors.primary : colors.surface, borderColor: colors.border }
-        ]}
-        onPress={() => setIsBougieMode(!isBougieMode)}
-      >
-        <Crown size={20} color={isBougieMode ? '#FFFFFF' : colors.text} />
-        <Text style={[styles.bougieText, { color: isBougieMode ? '#FFFFFF' : colors.text }]}>
-          {isBougieMode ? 'Bougie Mode ON' : 'Bougie Mode OFF'}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Casino Slot Machine */}
-      <View style={styles.slotMachineContainer}>
-        {/* Slot Machine Body */}
-        <View style={[styles.slotMachine, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          {/* Single Reel Container with Arrow */}
-          <View style={styles.reelRow}>
-            {/* Arrow Pointer */}
-            <Animated.View style={[
-              styles.arrowPointer,
-              {
-                transform: [
-                  {
-                    scale: arrowAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [1, 1.3],
-                    })
-                  }
-                ]
-              }
-            ]}>
-              <ChevronRight size={32} color={colors.primary} />
-            </Animated.View>
-
-            {/* Single Reel */}
-            <View style={[styles.reel, { borderColor: colors.border }]}>
-              <View style={styles.reelWindow}>
-                <Animated.View style={[
-                  styles.reelContent, 
-                  { 
-                    transform: [{ 
-                      translateY: reelAnim.interpolate({
-                        inputRange: [0, currentFoods.length],
-                        outputRange: [0, -currentFoods.length * 80],
-                      }) 
-                    }] 
-                  }
-                ]}>
-                  {/* Create multiple copies of the food list for seamless scrolling */}
-                  {Array.from({ length: 8 }, (_, cycle) => 
-                    currentFoods.map((food, index) => (
-                      <View key={`${cycle}-${index}`} style={styles.reelItem}>
-                        <Text style={styles.reelEmoji}>{food.emoji}</Text>
-                        <Text style={[styles.reelText, { color: colors.text }]}>{food.name}</Text>
-                      </View>
-                    ))
-                  )}
-                </Animated.View>
-              </View>
-            </View>
+    <View style={reel$.window}>
+      <Animated.View style={[reel$.strip, { transform: [{ translateY }] }]}>
+        {REEL_ITEMS.map((food, i) => (
+          <View key={i} style={reel$.item}>
+            <Text style={reel$.emoji}>{food.emoji}</Text>
+            <Text style={reel$.label}>{food.label}</Text>
           </View>
-        </View>
-
-        {/* Lever - Now positioned under the wheel */}
-        <Animated.View style={[
-          styles.lever,
-          { 
-            backgroundColor: colors.primary,
-            transform: [{ rotate: leverAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['0deg', '-15deg'],
-            }) }]
-          }
-        ]}>
-          <TouchableOpacity
-            style={styles.leverButton}
-            onPress={spinSlotMachine}
-            disabled={isSpinning}
-          >
-            
-            <Text style={styles.leverText}>
-              {isSpinning ? 'SPINNING...' : 'PULL!'}
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-
-      {/* Result */}
-      {selectedFood && (
-        <View style={[styles.resultContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <View style={styles.resultHeader}>
-            <Sparkles size={24} color={colors.primary} />
-            <Text style={[styles.resultTitle, { color: colors.primary }]}>
-              🎉 Your Choice! 🎉
-            </Text>
-            <Sparkles size={24} color={colors.primary} />
-          </View>
-          
-          <View style={styles.resultContent}>
-            <Text style={[styles.resultFood, { color: colors.text }]}>
-              {selectedFood.emoji} {selectedFood.name}
-            </Text>
-            
-            {selectedInstruction && (
-              <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
-                {selectedInstruction}
-              </Text>
-            )}
-          </View>
-          
-          <Heart size={20} color={colors.secondary} />
-        </View>
-      )}
-
-      {/* Stats */}
-      <View style={styles.statsContainer}>
-        <Text style={[styles.statsText, { color: colors.textSecondary }]}>
-          Spins today: {spinCount} 🎰
-        </Text>
-      </View>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-          Made with love to help you decide 💜
-        </Text>
-      </View>
+        ))}
+      </Animated.View>
     </View>
   );
 }
 
+export default function FoodRouletteScreen() {
+  const { colors } = useTheme();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const [spinning, setSpinning] = useState(false);
+  const [finalFood, setFinalFood] = useState<typeof FOODS[0] | null>(null);
+  const [done, setDone] = useState(false);
+
+  const rawAnims = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+
+  // Target pixel offsets for each reel (computed on spin)
+  const targetOffsets = useRef([0, 0, 0]);
+
+  const reset = useCallback(() => {
+    rawAnims.forEach(a => a.setValue(0));
+    targetOffsets.current = [0, 0, 0];
+    setFinalFood(null);
+    setDone(false);
+    setSpinning(false);
+  }, [rawAnims]);
+
+  const spin = useCallback(() => {
+    if (spinning) return;
+    reset();
+    setSpinning(true);
+    setDone(false);
+
+    const pick = Math.floor(Math.random() * FOODS.length);
+
+    // Each reel lands on the same food. We spin some extra full loops + offset to land
+    // on the picked item. The center slot (index 1 of the 3 visible) should show the result.
+    // We want the reel to stop so that REEL_ITEMS[stopIndex] is in the center visible row.
+    // Center row = (REEL_ITEMS.length / 2 + 1) roughly; pick a high-index occurrence.
+    const baseLoops = 5;
+    const totalItems = REEL_ITEMS.length;
+
+    rawAnims.forEach((anim, col) => {
+      // Find an item index in the upper half of REEL_ITEMS that matches `pick`
+      const targetIdx = FOODS.length * (baseLoops + col) + pick;
+      // To center that item: top of the visible window should be (targetIdx - 1) * ITEM_H
+      const targetY = -(targetIdx - 1) * ITEM_H;
+      targetOffsets.current[col] = targetY;
+
+      const delay = col * 500;
+      const duration = 2200 + col * 600;
+
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(anim, {
+          toValue: targetY,
+          duration,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start(({ finished }) => {
+        if (col === 2 && finished) {
+          setFinalFood(FOODS[pick]);
+          setDone(true);
+          setSpinning(false);
+        }
+      });
+    });
+  }, [spinning, reset, rawAnims]);
+
+  return (
+    <LinearGradient colors={['#0a0010', '#160B25', '#0a0010']} style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ChevronLeft size={24} color="rgba(255,255,255,0.7)" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Food Roulette</Text>
+          <Text style={styles.headerSub}>Let fate decide tonight</Text>
+        </View>
+        <TouchableOpacity onPress={reset} style={styles.resetBtn}>
+          <RotateCcw size={20} color="rgba(255,255,255,0.5)" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false}>
+        {/* Slot machine body */}
+        <View style={styles.machine}>
+          <LinearGradient colors={['#2a0050', '#1a0033', '#2a0050']} style={styles.machineBody} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+
+            {/* Top lights */}
+            <View style={styles.lightStrip}>
+              {[...Array(9)].map((_, i) => (
+                <View key={i} style={[styles.lightBulb, { backgroundColor: i % 2 === 0 ? '#E91E8C' : '#9C27B0' }]} />
+              ))}
+            </View>
+
+            {/* Reels row */}
+            <View style={styles.reelsRow}>
+              {rawAnims.map((anim, i) => (
+                <React.Fragment key={i}>
+                  <View style={styles.reelWrap}>
+                    <Reel translateY={anim as any} />
+                  </View>
+                  {i < 2 && <View style={styles.reelSep} />}
+                </React.Fragment>
+              ))}
+            </View>
+
+            {/* Center selection highlight */}
+            <View style={styles.selectionFrame} pointerEvents="none">
+              <View style={styles.selectionTop} />
+              <View style={styles.selectionBottom} />
+            </View>
+
+            {/* Bottom lights */}
+            <View style={styles.lightStrip}>
+              {[...Array(9)].map((_, i) => (
+                <View key={i} style={[styles.lightBulb, { backgroundColor: i % 2 === 0 ? '#9C27B0' : '#E91E8C' }]} />
+              ))}
+            </View>
+          </LinearGradient>
+
+          {/* Decorative side lever */}
+          <View style={styles.lever}>
+            <View style={styles.leverArm} />
+            <View style={[styles.leverKnob, { backgroundColor: spinning ? '#9C27B0' : '#E91E8C' }]} />
+          </View>
+        </View>
+
+        {/* Result display */}
+        {done && finalFood ? (
+          <LinearGradient colors={['rgba(233,30,140,0.15)', 'rgba(156,39,176,0.15)']} style={styles.resultCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+            <Text style={styles.resultEmoji}>{finalFood.emoji}</Text>
+            <Text style={styles.resultName}>{finalFood.label}</Text>
+            <Text style={styles.resultSub}>Tonight is settled.</Text>
+          </LinearGradient>
+        ) : (
+          <View style={styles.resultPlaceholder}>
+            <Text style={styles.placeholderText}>
+              {spinning ? 'Spinning...' : 'Tap SPIN to find out what to eat'}
+            </Text>
+          </View>
+        )}
+
+        {/* Spin button */}
+        <TouchableOpacity onPress={spin} disabled={spinning} activeOpacity={0.8} style={styles.spinBtnOuter}>
+          <LinearGradient
+            colors={spinning ? ['#444', '#333'] : ['#E91E8C', '#9C27B0']}
+            style={styles.spinBtn}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Text style={styles.spinBtnText}>{spinning ? 'SPINNING...' : 'SPIN'}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Food index */}
+        <View style={styles.foodGrid}>
+          {FOODS.map(f => (
+            <View key={f.label} style={[styles.foodChip, { borderColor: colors.border }]}>
+              <Text style={styles.foodChipEmoji}>{f.emoji}</Text>
+              <Text style={[styles.foodChipLabel, { color: colors.textSecondary }]}>{f.label}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+
+const reel$ = StyleSheet.create({
+  window: {
+    height: REEL_H,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  strip: {
+    flexDirection: 'column',
+  },
+  item: {
+    height: ITEM_H,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  emoji: { fontSize: 28 },
+  label: { fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: '600', textAlign: 'center' },
+});
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
+  container: { flex: 1 },
+
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 20,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 20, paddingBottom: 16,
   },
-  backButton: {
-    padding: 10,
-    marginRight: 15,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    fontStyle: 'italic',
-  },
-  bougieToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    borderWidth: 2,
-    marginBottom: 20,
-    gap: 8,
-  },
-  bougieText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  slotMachineContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 20,
+  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  headerTitle: { fontSize: 20, fontWeight: '800', color: '#fff' },
+  headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 },
+  resetBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+
+  content: { alignItems: 'center', paddingHorizontal: 24, paddingBottom: 60 },
+
+  machine: {
+    width: '100%',
+    maxWidth: 340,
+    alignItems: 'flex-start',
+    marginBottom: 28,
     position: 'relative',
-    paddingBottom: 80,
   },
-  slotMachine: {
-    width: width * 0.8,
-    height: 150,
+  machineBody: {
+    width: '100%',
     borderRadius: 20,
-    borderWidth: 4,
-    overflow: 'hidden',
-    elevation: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
+    overflow: 'visible',
+    borderWidth: 2,
+    borderColor: 'rgba(233,30,140,0.5)',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  reelRow: {
-    flex: 1,
+
+  lightStrip: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    justifyContent: 'space-between',
+    marginVertical: 10,
   },
-  arrowPointer: {
-    marginRight: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  reel: {
-    width: '80%',
-    height: '80%',
-    borderRadius: 15,
-    borderWidth: 3,
-    overflow: 'hidden',
-    backgroundColor: '#2C2C2C',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+  lightBulb: {
+    width: 13, height: 13, borderRadius: 7,
+    shadowColor: '#E91E8C',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
     shadowRadius: 4,
   },
-  reelWindow: {
+
+  reelsRow: {
+    flexDirection: 'row',
+    gap: 0,
+  },
+  reelWrap: {
     flex: 1,
+    borderRadius: 10,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: '#0a0010',
   },
-  reelContent: {
+  reelSep: { width: 8 },
+
+  selectionFrame: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
+    left: 16,
+    right: 16,
+    top: 14 + 10 + 13 + 10 + ITEM_H, // lightStrip offset + center row
+    height: ITEM_H,
+    pointerEvents: 'none',
   },
-  reelItem: {
-    width: '100%',
-    height: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
+  selectionTop: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: 2,
+    backgroundColor: 'rgba(233,30,140,0.8)',
   },
-  reelEmoji: {
-    fontSize: 32,
-    marginBottom: 5,
+  selectionBottom: {
+    position: 'absolute',
+    bottom: 0, left: 0, right: 0,
+    height: 2,
+    backgroundColor: 'rgba(233,30,140,0.8)',
   },
-  reelText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
+
   lever: {
     position: 'absolute',
-    bottom: 0,
-    left: '50%',
-    width: 200,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
+    right: -22,
+    top: 30,
     alignItems: 'center',
-    transformOrigin: '50% 100%',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    marginLeft: -100, // Center the button (half of width)
   },
-  leverButton: {
+  leverArm: {
+    width: 10,
+    height: 90,
+    backgroundColor: '#3a3a3a',
+    borderRadius: 5,
+  },
+  leverKnob: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    marginTop: -8,
+  },
+
+  resultCard: {
     width: '100%',
-    height: '100%',
-    borderRadius: 30,
-    justifyContent: 'center',
+    maxWidth: 340,
+    borderRadius: 18,
+    padding: 28,
     alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(233,30,140,0.4)',
+    marginBottom: 20,
   },
-  leverText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginTop: 5,
+  resultEmoji: { fontSize: 52, marginBottom: 4 },
+  resultName: { fontSize: 28, fontWeight: '800', color: '#fff' },
+  resultSub: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
+
+  resultPlaceholder: {
+    width: '100%',
+    maxWidth: 340,
+    paddingVertical: 28,
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  resultContainer: {
+  placeholderText: { fontSize: 14, color: 'rgba(255,255,255,0.3)', textAlign: 'center' },
+
+  spinBtnOuter: {
+    width: '100%',
+    maxWidth: 340,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 32,
+  },
+  spinBtn: {
+    paddingVertical: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 25,
-    borderRadius: 20,
-    borderWidth: 2,
-    marginVertical: 20,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
   },
-  resultHeader: {
+  spinBtnText: { color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: 4 },
+
+  foodGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: 340,
+  },
+  foodChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 15,
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  resultTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  resultContent: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  resultFood: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  instructionText: {
-    fontSize: 16,
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: 10,
-  },
-  statsContainer: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  statsText: {
-    fontSize: 14,
-    fontStyle: 'italic',
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
+  foodChipEmoji: { fontSize: 14 },
+  foodChipLabel: { fontSize: 12, fontWeight: '500' },
 });

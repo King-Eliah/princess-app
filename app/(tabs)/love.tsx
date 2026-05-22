@@ -1,157 +1,67 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
-import { Heart, Star, Sparkles, Flower, ArrowRight, MessageCircle, FileText, Gift, Utensils } from 'lucide-react-native'; // Added Utensils
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Heart, MessageCircle, FileText, Utensils, Star, ChevronRight, Mail } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useRouter } from 'expo-router';
-
-const { width } = Dimensions.get('window');
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const loveFeatures = [
-  {
-    id: 1,
-    title: 'Food Roulette',
-    description: 'Let the wheel decide what to eat',
-    icon: Utensils,
-    color: '#FF6B6B',
-    route: '/screens/food-roulette',
-  },
-  {
-    id: 2,
-    title: 'Love Letter',
-    description: 'A special message just for you',
-    icon: MessageCircle,
-    color: '#FF69B4',
-    route: '/screens/love-letter',
-  },
-  {
-    id: 3,
-    title: 'Reasons I Love You',
-    description: 'Countless reasons why you\'re amazing',
-    icon: Heart,
-    color: '#A020F0',
-    route: '/screens/reasons',
-  },
-  {
-    id: 4,
-    title: 'Our Timeline',
-    description: 'Every beautiful moment we\'ve shared',
-    icon: Star,
-    color: '#DA70D6',
-    route: '/screens/timeline',
-  },
-  {
-    id: 5,
-    title: 'Beautiful Poem',
-    description: 'Words that express my feelings',
-    icon: FileText,
-    color: '#FF1493',
-    route: '/screens/poem',
-  },
-  {
-    id: 6,
-    title: 'My Promises',
-    description: 'Commitments I make to you',
-    icon: Sparkles,
-    color: '#8A2BE2',
-    route: '/screens/promises',
-  },
-  {
-    id: 7,
-    title: 'Surprise Gifts',
-    description: 'Little tokens of my affection',
-    icon: Gift,
-    color: '#BA55D3',
-    route: '/screens/gifts',
-  },
+  { id: 8, title: 'Open When', description: 'Letters written just for you — open one when you need it most', icon: Mail, color: '#3B82F6', route: '/screens/open-when' },
+  { id: 1, title: 'Food Roulette', description: 'Let fate decide what to eat tonight', icon: Utensils, color: '#E91E8C', route: '/screens/food-roulette' },
+  { id: 2, title: 'Love Letters', description: 'Monthly letters just for you', icon: MessageCircle, color: '#AB47BC', route: '/screens/love-letter' },
+  { id: 3, title: 'Reasons I Love You', description: 'Countless reasons you are amazing', icon: Heart, color: '#E91E8C', route: '/screens/reasons' },
+  { id: 4, title: 'Touch Messages', description: 'Hold to reveal a sweet message', icon: Heart, color: '#D81B60', route: '/screens/touch' },
+  { id: 5, title: 'Starry Night', description: 'Magical moments under the stars', icon: Star, color: '#8E24AA', route: '/screens/starry' },
+  { id: 6, title: 'Beautiful Poem', description: 'Words that express my feelings', icon: FileText, color: '#4A148C', route: '/screens/poem' },
+  { id: 7, title: 'My Promises', description: 'Commitments I make to you', icon: Heart, color: '#7B1FA2', route: '/screens/promises' },
 ];
 
 const loveQuotes = [
-  "Every time I see you, I fall in love all over again 💜",
-  "You're not just my love, you're my best friend, my soulmate, my everything ✨",
-  "With you, every day feels like Valentine's Day 💕",
-  "You make my heart smile in ways I never thought possible 🌟",
-  "I love you more than words can express, more than actions can show 💖",
+  "Every time I see you,\nI fall in love all over again.",
+  "You're not just my love,\nyou're my best friend and my everything.",
+  "With you, every day feels\nlike Valentine's Day.",
+  "You make my heart smile\nin ways I never thought possible.",
 ];
 
 export default function LoveScreen() {
   const { colors } = useTheme();
   const router = useRouter();
-
-  const renderLoveCard = (feature: any) => (
-    <TouchableOpacity
-      key={feature.id}
-      style={[styles.loveCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-      onPress={() => router.push(feature.route)}
-    >
-      <View style={[styles.iconContainer, { backgroundColor: feature.color + '20' }]}>
-        <feature.icon size={28} color={feature.color} />
-      </View>
-      <View style={styles.cardContent}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>{feature.title}</Text>
-        <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
-          {feature.description}
-        </Text>
-      </View>
-      <ArrowRight size={20} color={colors.textSecondary} />
-    </TouchableOpacity>
-  );
+  const insets = useSafeAreaInsets();
+  const quote = loveQuotes[new Date().getDay() % loveQuotes.length];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 16 }]} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
+
         <View style={styles.header}>
-          <View style={[styles.headerIcon, { backgroundColor: colors.primary }]}>
-            <Heart size={40} color="#FFFFFF" fill="#FFFFFF" />
-          </View>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Love & Romance</Text>
-          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
-            Everything that makes my heart beat for you 💜
-          </Text>
+          <Text style={[styles.appName, { color: colors.textSecondary }]}>Our Sanctuary</Text>
         </View>
 
-        {/* Love Quote */}
-        <View style={[styles.quoteCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <View style={styles.quoteContent}>
-            <Flower size={24} color={colors.primary} />
-            <Text style={[styles.quoteText, { color: colors.text }]}>
-              {loveQuotes[Math.floor(Math.random() * loveQuotes.length)]}
-            </Text>
-          </View>
+        <View style={styles.quoteBlock}>
+          <Text style={styles.quoteMarks}>"</Text>
+          <Text style={styles.quoteText}>{quote}</Text>
+          <Text style={styles.quoteAttribution}>always and forever</Text>
         </View>
 
-        {/* Love Features */}
-        <View style={styles.featuresSection}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Express My Love</Text>
-          <View style={styles.featuresGrid}>
-            {loveFeatures.map(renderLoveCard)}
-          </View>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Discover Together</Text>
+
+          {loveFeatures.map(feat => (
+            <TouchableOpacity key={feat.id} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.push(feat.route as any)} activeOpacity={0.7}>
+              <View style={[styles.iconBox, { backgroundColor: feat.color + '22' }]}>
+                <feat.icon size={32} color={feat.color} />
+              </View>
+              <View style={styles.cardText}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>{feat.title}</Text>
+                <Text style={[styles.cardDesc, { color: colors.textSecondary }]} numberOfLines={1}>{feat.description}</Text>
+              </View>
+              <ChevronRight size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Love Stats */}
-        <View style={styles.statsSection}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Love Story</Text>
-          <View style={styles.statsGrid}>
-            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.statNumber, { color: colors.primary }]}>100%</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>My Heart</Text>
-            </View>
-            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.statNumber, { color: colors.primary }]}>∞</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Love for You</Text>
-            </View>
-            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.statNumber, { color: colors.primary }]}>24/7</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Thinking of You</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Footer */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-            You're the missing piece to my puzzle 💜
-          </Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>You're the missing piece to my puzzle 💜</Text>
         </View>
       </ScrollView>
     </View>
@@ -159,120 +69,21 @@ export default function LoveScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 20,
-    paddingTop: 60,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  headerIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  quoteCard: {
-    borderWidth: 1,
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 30,
-  },
-  quoteContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
-  },
-  quoteText: {
-    fontSize: 16,
-    lineHeight: 24,
-    flex: 1,
-    fontStyle: 'italic',
-  },
-  featuresSection: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  featuresGrid: {
-    gap: 15,
-  },
-  loveCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 20,
-    gap: 15,
-  },
-  iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardContent: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  cardDescription: {
-    fontSize: 14,
-  },
-  statsSection: {
-    marginBottom: 30,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 15,
-  },
-  statCard: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 20,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
+  container: { flex: 1 },
+  scroll: { paddingHorizontal: 20, paddingBottom: 120 },
+  header: { alignItems: 'center', marginBottom: 28 },
+  appName: { fontSize: 13, fontWeight: '600', letterSpacing: 1.5, textTransform: 'uppercase' },
+  quoteBlock: { alignItems: 'center', marginBottom: 40, paddingHorizontal: 16 },
+  quoteMarks: { fontSize: 72, color: '#E91E8C', lineHeight: 72, marginBottom: -16, fontStyle: 'italic', opacity: 0.9 },
+  quoteText: { fontSize: 26, fontStyle: 'italic', fontWeight: '700', color: '#FFFFFF', textAlign: 'center', lineHeight: 36, letterSpacing: 0.3 },
+  quoteAttribution: { marginTop: 14, fontSize: 13, color: 'rgba(255,255,255,0.4)', letterSpacing: 1 },
+  section: { marginBottom: 32 },
+  sectionTitle: { fontSize: 13, fontWeight: '700', letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 16, opacity: 0.7 },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, gap: 14 },
+  iconBox: { width: 56, height: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  cardText: { flex: 1 },
+  cardTitle: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
+  cardDesc: { fontSize: 12, lineHeight: 16 },
+  footer: { alignItems: 'center', paddingVertical: 16 },
+  footerText: { fontSize: 13, fontStyle: 'italic', textAlign: 'center' },
 });

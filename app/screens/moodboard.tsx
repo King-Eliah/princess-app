@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
-import { Heart, Star, Sparkles, Flower, Music, Camera, Palette, ArrowLeft, Quote } from 'lucide-react-native';
+import { Heart, Star, Sparkles, Flower, Music, Camera, Palette, ChevronLeft, Quote } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useRouter } from 'expo-router';
 
@@ -160,14 +160,14 @@ export default function MoodboardScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <ArrowLeft size={24} color={colors.text} />
+            <ChevronLeft size={24} color={colors.text} />
           </TouchableOpacity>
           
           <View style={styles.headerContent}>
@@ -217,6 +217,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingTop: 60,
+    paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
@@ -250,9 +251,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   descriptionCard: {
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 30,
   },
   descriptionText: {
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   moodboardItem: {
-    borderRadius: 20,
+    borderRadius: 12,
     overflow: 'hidden',
     elevation: 8,
     shadowColor: '#000',

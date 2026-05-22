@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
@@ -34,6 +35,15 @@ export default function RootLayout() {
           <Stack.Screen name="screens/timeline" options={{ headerShown: false }} />
           <Stack.Screen name="screens/touch" options={{ headerShown: false }} />
           <Stack.Screen name="screens/food-roulette" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/notes" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/games" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/couple-trivia" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/emoji-match" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/crossword" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/picture-match" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/settings" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/surprise" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>
